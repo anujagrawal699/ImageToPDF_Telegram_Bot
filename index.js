@@ -1,11 +1,18 @@
-const { Telegraf } = require('telegraf');
-var convertapi = require('convertapi')('HDviOk5jO0lsdo9P');
-
-
-const axios = require('axios');
-
-const bot = new Telegraf('7101337602:AAEY3XbvYhsiugqdCHXw-Ny4JcFqbTWSjxg');
+const  { Telegraf }  = require("telegraf");
+var convertapi = require('convertapi')(process.env.CONVERT_KEY);
+const bot = new Telegraf(process.env.BOT_TOKEN);
 var dir = require('os').tmpdir();
+
+const express = require('express');
+const app = express();  
+
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+const port = 3000;
+app.listen(port, ()=>{
+  console.log(`Server is running at port ${port}`);
+});
 
 bot.start((ctx) => {ctx.reply("Welcome to the File Format conversion bit.\n Currently we only support jpg to other formats conversion (Sending other formats will cause errors.) \n Send the file you want to convert.");
 });
@@ -30,7 +37,7 @@ function showFileFormatOptions(ctx) {
             inline_keyboard: [
                 [
                     { text: "PDF", callback_data: "pdf" }
-                    
+
                 ]
             ]
         }
@@ -61,19 +68,19 @@ async function convertAndSend(ctx,url, outputFormat) {
     try {
         var resultPromise = convertapi.convert(outputFormat, { File: link1 }) .then(function(result) {
             console.log(result.Files)
-          
+
             return result.saveFiles(dir);
           })
           .then(function(files) {
             console.log(`The ${outputFormat} saved to\n` + files);
             return ctx.replyWithDocument({ source: files[0] });
-            
+
           })
           .catch(function(e) {
             console.error(e.toString());
           });
-        
-       
+
+
     } catch (error) {
         console.error(error.toString());
         ctx.reply('An error occurred during conversion. Please try again later.');
